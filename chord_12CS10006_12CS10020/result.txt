@@ -1,0 +1,46 @@
+node creation done ID=3310714197312960419 at 127.0.0.1::10000
+first node in the network
+joining done me=127.0.0.1::10000(3310714197312960419) predeccesor=127.0.0.1::10000(3310714197312960419) successor=127.0.0.1::10000(3310714197312960419)
+called update finger
+find this
+finger table of Node127.0.0.1:10000 is
+message "JOIN<3310714203517410110><16777343:6183>" received from 127.0.0.1::10008
+ring updated me=127.0.0.1::10000(3310714197312960419) predeccesor=127.0.0.1::10000(3310714203517410110) successor=127.0.0.1::10008(3310714197312960419)
+message "NOTIFY<3310714203517410110><16777343:6183>" received from 127.0.0.1::10008
+ring updated me=127.0.0.1::10000(3310714197312960419) predeccesor=127.0.0.1::10008(3310714203517410110) successor=127.0.0.1::10008(3310714203517410110)
+message "INITFINGER<3310714203517410110><16777343:6183>" received from 127.0.0.1::10008
+request for init finger
+called update finger
+finger table of Node127.0.0.1:10000 is
+message "JOIN<3310714196145728639><16777343:4903>" received from 127.0.0.1::10003
+message "NOTIFY<3310714196145728639><16777343:4903>" received from 127.0.0.1::10003
+ring updated me=127.0.0.1::10000(3310714197312960419) predeccesor=127.0.0.1::10003(3310714203517410110) successor=127.0.0.1::10008(3310714196145728639)
+message "SUCCINQ<3310714198293212287><16777343:4903>" received from 127.0.0.1::10003
+message "SUCCINQ<3310714200440695935><16777343:4903>" received from 127.0.0.1::10003
+message "INITFINGER<3310714196145728639><16777343:4903>" received from 127.0.0.1::10003
+request for init finger
+called update finger
+finger table of Node127.0.0.1:10000 is
+message "JOIN<3310714199827227482><16777343:5927>" received from 127.0.0.1::10007
+ring updated me=127.0.0.1::10000(3310714197312960419) predeccesor=127.0.0.1::10003(3310714199827227482) successor=127.0.0.1::10007(3310714196145728639)
+message "SUCCINQ<3310714198293212287><16777343:4903>" received from 127.0.0.1::10003
+message "SUCCINQ<3310714200440695935><16777343:4903>" received from 127.0.0.1::10003
+message "INITFINGER<3310714199827227482><16777343:5927>" received from 127.0.0.1::10003
+request for init finger
+called update finger
+finger table of Node127.0.0.1:10000 is
+message "LEAVE<3310714203517410110><16777343:6183>" received from 127.0.0.1::10007
+request for leave
+ring updated me=127.0.0.1::10000(3310714197312960419) predeccesor=127.0.0.1::10003(3310714203517410110) successor=127.0.0.1::10008(3310714196145728639)
+called update finger
+finger table of Node127.0.0.1:10000 is
+message "SUCCINQ<3310714198293212287><16777343:4903>" received from 127.0.0.1::10003
+message "SUCCINQ<3310714200440695935><16777343:4903>" received from 127.0.0.1::10003
+message "LEAVE<3310714196145728639><16777343:4903>" received from 127.0.0.1::10008
+request for leave
+ring updated me=127.0.0.1::10000(3310714197312960419) predeccesor=127.0.0.1::10003(3310714196145728639) successor=127.0.0.1::10003(3310714196145728639)
+called update finger
+finger table of Node127.0.0.1:10000 is
+message sent to successor
+Node server up on 127.0.0.1::10030 waiting for incoming connection.......
+message sent to successor

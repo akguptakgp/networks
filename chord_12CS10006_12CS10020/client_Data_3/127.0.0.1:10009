@@ -1,0 +1,37 @@
+import MySQLdb as mdb
+import sys           
+import time
+
+try:
+        db = mdb.connect('10.5.18.67', '12CS10023', 'btech12', '12CS10023');
+        cursor = db.cursor()
+        print "connected to db"                                                
+except:                                                                     
+        print "sql database connection failed. Aborting..."                 
+        sys.exit(1)                                                         
+
+if __name__ == "__main__":
+        sql="Drop VIEW IF EXISTS T1"
+        cursor.execute(sql)
+        sql="create VIEW T1 as select * from Publications NATURAL JOIN Authors NATURAL JOIN Publish"
+        cursor.execute(sql)
+        db.commit() 
+        sql="select distinct A.AuthorID,B.AuthorID from T1 as A JOIN T1 as B using (PubID) where A.AuthorID > B.AuthorID"
+        cursor.execute(sql)
+        rows=cursor.fetchall()
+        G = {}
+        for x in rows:
+                G[x[0],x[1]] = 1
+        degree = {}
+        for x,y in G.keys():
+                if x in degree:
+                        degree[x] += 1
+                else:
+                        degree[x] = 1
+                if y in degree:
+                        degree[y] += 1
+                else:
+                        degree[y] = 1                        
+        print degree
+        print "number of colors " + str(6)
+

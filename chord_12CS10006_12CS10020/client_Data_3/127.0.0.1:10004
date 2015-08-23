@@ -1,0 +1,32 @@
+import sys
+import MySQLdb as mdb 
+import networkx as nx
+db=mdb.connect("10.5.18.68","12CS10006","btech12","12CS10006")
+cursor=db.cursor()
+sql="create view v1 as select * from Authors natural join Publish;"
+cursor.execute(sql)
+db.commit()
+sql="create view v2 as select A1.AuthorID a1,A2.AuthorID a2,A1.AuthorName n1,A2.AuthorName n2 from v1 A1 join v1 A2 on A1.PubID=A2.PubID where A1.AuthorID<>A2.AuthorID;"
+cursor.execute(sql)
+db.commit()
+sql="select a1,a2 from v2;"
+cursor.execute(sql)
+res=cursor.fetchall()
+G=nx.Graph()
+G.add_edges_from(res)
+dic=nx.shortest_path_length(G)
+kq=-1
+mn=sys.maxint
+for key,val in dic.items():
+	mx=0
+	for k1,v1 in val.items():
+		if dic[key][k1]>mx:
+			mx=int(v1)
+	if mx<mn:
+		mn=mx
+		kq=key
+
+print 'AuthorID =',kq
+db.commit()
+db.close()
+

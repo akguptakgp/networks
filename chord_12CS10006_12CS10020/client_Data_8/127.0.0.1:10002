@@ -1,0 +1,142 @@
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <dirent.h>
+#include <string>
+#include <iostream>
+#include <ifaddrs.h>
+#include "node.h"
+
+#define MAXFILES_PER_CLIENT 50
+#define BUFFER_SIZE 1000
+using namespace std;
+
+
+int main(int argc,char *argv[])
+{
+  int ID;
+  char *p;
+  if(argc==3)
+  {
+    ID=atoi(argv[1]);
+    p=strdup(argv[2]);
+  }
+  else
+  {
+    printf("Please provide the id and ip source\n");
+    exit(0);
+  }
+
+  class Node n(ID,p);
+
+  printf("node creation done ID=%llu at %s::%d\n",n.getID(),n.getipstr(),htons(n.getIP().sin_port));
+  
+  // main_node is already existing node
+  struct sockaddr_in main_node;
+  main_node.sin_family=AF_INET;
+  main_node.sin_port=ntohs(10000);
+  char main_ip[INET_ADDRSTRLEN];
+  if(!strcmp(p,"lo"))      //////////////////////////////////////////////should be changed
+    strcpy(main_ip,"127.0.0.1");
+  inet_pton(AF_INET,main_ip,&(main_node.sin_addr));
+
+
+    // join the network
+  if(ID!=0)
+    printf("joining to %s::%d\n",main_ip,10000);
+  else
+    printf("first node in the network\n");
+  n.join(main_node);
+
+  char pre[INET_ADDRSTRLEN],suc[INET_ADDRSTRLEN];
+  struct in_addr preadd=n.getpreIP().sin_addr,sucadd=n.getsucIP().sin_addr;
+  inet_ntop(AF_INET,&(preadd),pre,INET_ADDRSTRLEN);
+  inet_ntop(AF_INET,&(sucadd),suc,INET_ADDRSTRLEN);
+  
+   printf("joining done me=%s::%d(%llu) predeccesor=%s::%d(%llu) successor=%s::%d(%llu)\n",n.getipstr(),htons(n.getIP().sin_port),n.getID(),pre,htons(n.getpreIP().sin_port),n.getpreID(),suc,htons(n.getsucIP().sin_port),n.getsucID()) ;
+
+  n.upload_file();
+
+  
+
+  int sockfd=n.getsocket();
+  char ipstr[INET_ADDRSTRLEN];
+  while(1)  // read from TCP socket and write serve the user according to that
+  {
+    n.print_hash();
+
+    char buffer[BUFFER_SIZE]; 
+    memset(buffer,'\0',BUFFER_SIZE);
+
+    // used for storing client address while receiving
+    struct sockaddr_in cli_addr;
+    socklen_t clilen = sizeof(cli_addr);
+
+    int n_= recvfrom(sockfd,buffer,BUFFER_SIZE,0,(struct sockaddr*)&cli_addr,&clilen);
+    if (n_ < 0) perror("ERROR reading from socket");
+
+    memset(ipstr,'\0',INET_ADDRSTRLEN);
+    inet_ntop(AF_INET,&cli_addr.sin_addr,ipstr,INET_ADDRSTRLEN);
+    printf("message \"%s\" received from %s::%d\n",buffer,ipstr,ntohs(cli_addr.sin_port));    
+
+    if(startswith(buffer,"SUCCINQ")) //client want to inquire about successor
+    {
+      // find the successor 
+      unsigned long long int id;
+      struct sockaddr_in to_send;
+      to_send.sin_family=AF_INET;
+      int port;
+      sscanf(buffer,"SUCCINQ<%llu><%d:%d>",&id,&(to_send.sin_addr.s_addr),&port); 
+      to_send.sin_port=port;
+      n.find_succesor(id,to_send); 
+    }
+    if(startswith(buffer,"JOIN")) //client want to join
+    {
+      unsigned long long int id;
+      struct sockaddr_in to_send;
+      to_send.sin_family=AF_INET;
+      int port;
+      sscanf(buffer,"JOIN<%llu><%d:%d>",&id,&(to_send.sin_addr.s_addr),&port); 
+      to_send.sin_port=port;
+      n.join_node(id,to_send);
+    }
+    if(startswith(buffer,"NOTIFY")) //client want to join
+    {
+     // printf("noti\n");
+      unsigned long long int id;
+      struct sockaddr_in to_send;
+      to_send.sin_family=AF_INET;
+      int port;
+      sscanf(buffer,"NOTIFY<%llu><%d:%d>",&id,&(to_send.sin_addr.s_addr),&port); 
+      to_send.sin_port=port;
+      n.stablize(id,to_send);
+    }
+    if(startswith(buffer,"HASHUPDATE")) //client want to join
+    {
+     printf("request for update\n");
+      unsigned long long int id;
+      struct sockaddr_in to_send;
+      to_send.sin_family=AF_INET;
+      int port;
+      sscanf(buffer,"HASHUPDATE<%llu><%d:%d>",&id,&(to_send.sin_addr.s_addr),&port); 
+      to_send.sin_port=port;
+
+      n.hash_update(id,to_send);
+    }
+
+
+  }
+
+  return 0; 
+}
+
+
+
+ 
